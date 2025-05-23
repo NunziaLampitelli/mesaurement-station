@@ -25,20 +25,21 @@ $(document).ready(function () {
                     $('#avgTemperature').text('--');
                     $('#avgHumidity').text('--');
                     $('#reliableDevices').html('--');
+                    $('#dataTable tbody').empty();
                     return;
                 }
 
                 const tbody = $('#dataTable tbody');
                 tbody.empty();
 
-                // Controllo dati riferimento e aggiornamento summary
-                if (response.refTemperature !== undefined && response.refHumidity !== undefined) {
+                // Dati di riferimento (maj) - senza DeviceId, solo valori
+                if (typeof response.refTemperature === 'number' && typeof response.refHumidity === 'number') {
                     $('#avgTemperature').text(response.refTemperature.toFixed(2));
                     $('#avgHumidity').text(response.refHumidity.toFixed(2));
 
                     tbody.append(`
                         <tr style="background-color:#f0f0f0; font-weight:bold;">
-                            <td>Riferimento</td>
+                            <td>Reference</td>
                             <td>${response.refTemperature.toFixed(1)}°C</td>
                             <td>${response.refHumidity.toFixed(1)}%</td>
                             <td>--</td>
@@ -49,16 +50,20 @@ $(document).ready(function () {
                     $('#avgHumidity').text('--');
                 }
 
-                // Ciclo sensori
+                // Ciclo sui dati dei dispositivi (measurements)
                 response.data.forEach(item => {
-                    const tempReliable = response.reliableTemperatureDevices.includes(item.DeviceId);
-                    const humReliable = response.reliableHumidityDevices.includes(item.DeviceId);
+                    // Controlli di sicurezza sui valori
+                    const temperature = (typeof item.temperature === 'number') ? item.temperature.toFixed(1) + '°C' : '--';
+                    const humidity = (typeof item.humidity === 'number') ? item.humidity.toFixed(1) + '%' : '--';
+
+                    const tempReliable = Array.isArray(response.reliableTemperatureDevices) && response.reliableTemperatureDevices.includes(item.DeviceId);
+                    const humReliable = Array.isArray(response.reliableHumidityDevices) && response.reliableHumidityDevices.includes(item.DeviceId);
 
                     const row = `
                         <tr>
                             <td>${item.DeviceId}</td>
-                            <td>${item.temperature.toFixed(1)}°C</td>
-                            <td>${item.humidity.toFixed(1)}%</td>
+                            <td>${temperature}</td>
+                            <td>${humidity}</td>
                             <td>
                                 <span style="color: ${tempReliable ? 'green' : 'red'}">Temp: ${tempReliable ? '✓' : '✗'}</span><br>
                                 <span style="color: ${humReliable ? 'green' : 'red'}">Hum: ${humReliable ? '✓' : '✗'}</span>
@@ -68,10 +73,13 @@ $(document).ready(function () {
                     tbody.append(row);
                 });
 
-                // Mostro dispositivi affidabili
-                $('#reliableDevices').html(`
-                    <strong>Temp OK:</strong> ${response.reliableTemperatureDevices.join(', ')}<br>
-                    <strong>Hum OK:</strong> ${response.reliableHumidityDevices.join(', ')}
+                // Lista dispositivi affidabili
+                const reliableTempList = Array.isArray(response.reliableTemperatureDevices) ? response.reliableTemperatureDevices.join(', ') : '--';
+                const reliableHumList = Array.isArray(response.reliableHumidityDevices) ? response.reliableHumidityDevices.join(', ') : '--';
+
+                $('#reliableDevices').html(`<br>
+                    <strong>Temp OK:</strong> ${reliableTempList}<br>
+                    <strong>Hum OK:</strong> ${reliableHumList}
                 `);
             },
             error: function (xhr, status, error) {
