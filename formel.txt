@@ -1,1 +1,7 @@
+Excel
+
 =DATUM(EXTEXT(B2;7;4); EXTEXT(B2;4;2); EXTEXT(B2;1;2)) + TIDVÄRDE(EXTEXT(B2;12;5))
+
+Google Sheets
+
+=ARRAYFORMULA(TEXT(DATUM(MID(B2:B; 7; 4); MID(B2:B; 4; 2); LEFT(B2:B; 2)) + (VALUE(MID(B2:B; 12; 2)) / 24) + (VALUE(MID(B2:B; 15; 2)) / 1440) + (VALUE(RIGHT(B2:B; 2)) / 86400); "yyyy-mm-dd hh:mm:ss"))
