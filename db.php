@@ -1,12 +1,5 @@
 <?php
 
-/* $servername = "172.17.0.1:3314";
-$username = "nunzia";
-$password = "j2effphAy4.550996.";
-$dbname = "reserve2"; */
-
-//$conn = mysqli_connect('mysqli80.r103.websupport.se', 'nunzia', $password , $dbname, port: 3314);
-
 $servername = "localhost";
 $username = "root";
 $password = "";
